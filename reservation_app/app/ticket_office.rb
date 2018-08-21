@@ -1,7 +1,7 @@
 class TicketOffice
   
   def make_reservation(request)
-    # TODO: write this code!
+    request
   end
 end
 
