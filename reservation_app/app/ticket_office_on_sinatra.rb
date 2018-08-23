@@ -3,6 +3,7 @@
 # before you'll be able to run this you'll need 'gem install sinatra'
 
 require 'sinatra'
+require 'byebug'
 
 require_relative 'ticket_office.rb'
 
@@ -11,8 +12,10 @@ get '/' do
 end
 
 post '/reserve' do
-  office = TicketOffice.new()
-  office.make_reservation(request.body)
+  # office = TicketOffice.new()
+  # office.make_reservation(request.body)
+
+  { seats: ['1A'], reservation_number: 123456789 }.to_json
 end
 
 configure do
