@@ -10,6 +10,5 @@ end
 
 Then(/^System reserves one seat$/) do
   post 'http://localhost:8083/reserve', @payload
-  json = JSON.parse(last_response.body).with_indifferent_access
-  expect(json[:seats]).to eq ['1A']
+  expect(json_response[:seats]).to eq ['1A']
 end
