@@ -5,7 +5,7 @@
 require 'sinatra'
 require 'byebug'
 
-require_relative 'ticket_office.rb'
+require_relative './lib/ticket_office'
 
 get '/' do
   'Hello World'
@@ -15,7 +15,7 @@ post '/reserve' do
   # office = TicketOffice.new()
   # office.make_reservation(request.body)
 
-  { seats: ['1A'], reservation_number: 123456789 }.to_json
+  { train_id: 'Express_2000', seats: ['1A'], booking_reference: 'booking_123'}.to_json
 end
 
 configure do

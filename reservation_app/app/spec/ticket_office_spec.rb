@@ -1,11 +1,10 @@
-require_relative '../ticket_office.rb'
-require_relative '../train.rb'
+require 'spec_helper'
 
 describe TicketOffice do
 
-  describe '#make_reservation' do
+  describe 'make reservation for one ticket in empty train' do
     ticket_office = TicketOffice.new
-    request = 'request string'
+    request =
 
     it 'returns request' do
       expect(ticket_office.make_reservation(request)).to eq 'request string'
