@@ -14,17 +14,9 @@ get '/' do
 end
 
 post '/reserve' do
-  # office = TicketOffice.new
-  # booked_seats = office.make_reservation(train_id: params[:train_id], seats: params[:seats])
 
-  seats = JSON.parse(File.read('./data/trains.json')).with_indifferent_access
-  booked_seats = []
-  seats[params[:train_id].downcase][:seats].each do |seat_number, seat_properties|
-    if params[:seats].include? seat_number.to_s
-      seat_properties[:booking_reference] = params[:booking_reference]
-      booked_seats << seat_number
-    end
-  end
+  office = TicketOffice.new
+  booked_seats = office.make_reservation(train_id: params[:train_id], seats: params[:seats])
 
   { train_id: params[:train_id], seats: booked_seats, booking_reference: BookingReferenceNumber.generate }.to_json
 end
