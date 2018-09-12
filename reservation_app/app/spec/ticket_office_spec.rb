@@ -2,26 +2,15 @@ require 'spec_helper'
 
 describe TicketOffice do
 
-  describe 'make reservation for one ticket in empty train' do
-    ticket_office = TicketOffice.new
-    request =
+  describe 'Reserve one seat in empty train' do
 
-    it 'returns request' do
-      expect(ticket_office.make_reservation(request)).to eq 'request string'
-    end
-  end
+    it 'reserves 1A seat' do
+      train_id = 'Express_2000'
+      ticket_office = TicketOffice.new
+      seats = 1
 
-  describe 'train is empty' do
-    describe 'and passenger reserves one ticket' do
-      let(:train) { Train.new }
-
-      before { allow(train).to receive(:empty?).and_return(true) }
-
-      it 'reserves one seat' do
-        reservation = train.reserve_seats(1)
-
-        expect(reservation).to eq(['ticket123', '1A'])
-      end
+      reserved_seats = ticket_office.make_reservation(train_id: train_id, seats: seats)
+      expect(reserved_seats).to eq(['1A'])
     end
   end
 end
