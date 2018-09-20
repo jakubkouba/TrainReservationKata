@@ -9,8 +9,7 @@ class ReservationRequest
 end
 
 class Reservation
-  attr_reader :train_id
-  attr_reader :seats
+  attr_reader :train_id, :seats
 
   def initialize(train_id, seats)
     @train_id = train_id
