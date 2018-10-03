@@ -27,8 +27,6 @@ describe TicketOffice do
       allow(train_data_service).to receive(:trains).and_return(trains)
       allow(booking_reference_service).to receive(:reservation_number).and_return(reservation_number)
 
-      expect(train_data_service).to receive(:reserve).with(train_id, %w[1A], reservation_number)
-
       ticket_office = TicketOffice.new(train_data_service, booking_reference_service)
 
       reservation = ticket_office.make_reservation(train_id: train_id, seats: seats)
