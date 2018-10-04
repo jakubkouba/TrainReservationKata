@@ -1,4 +1,5 @@
 require 'reservations'
+require 'byebug'
 
 class TicketOffice
 
@@ -10,7 +11,13 @@ class TicketOffice
   end
 
   def make_reservation(train_id:, seats:)
-    reserved_seats = ['1A']
+    trains = train_data_service.trains
+
+    free_seats = trains[train_id]['seats'].select do |_, seat_property|
+      seat_property['booking_reference'].empty?
+    end
+
+    reserved_seats = free_seats.keys.first(seats)
     Reservation.new(train_id, reserved_seats)
   end
 end
