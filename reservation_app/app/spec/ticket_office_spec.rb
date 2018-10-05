@@ -4,7 +4,7 @@ describe TicketOffice do
 
   describe 'Reserve one seat in train' do
 
-    it 'reserves a seat' do
+    it 'reserves seat 1A' do
       train_id = 'express_2000'
       seats = 1
 
@@ -37,7 +37,7 @@ describe TicketOffice do
 
   describe 'Reserve two seats in train' do
 
-    it 'reserves two seats' do
+    it 'reserves seats 1A and 2A' do
       train_id = 'express_2000'
       seats = 2
 
@@ -67,4 +67,6 @@ describe TicketOffice do
       expect(reservation).to have_attributes(seats: %w[1A 2A], train_id: 'express_2000')
     end
   end
+
+
 end
