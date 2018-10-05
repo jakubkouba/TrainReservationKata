@@ -16,6 +16,8 @@ class TicketOffice
     free_seats = trains[train_id]['seats'].select { |_, seat| free_seat?(seat) }
 
     reserved_seats = free_seats.keys.first(seats)
+    train_data_service.reserve(train_id, reserved_seats, booking_reference_service.reservation_number)
+
     Reservation.new(train_id, reserved_seats)
   end
 
