@@ -37,7 +37,7 @@ describe TicketOffice do
 
   describe 'Reserve two seats in train' do
 
-    it 'reserves a seat' do
+    it 'reserves two seats' do
       train_id = 'express_2000'
       seats = 2
 
