@@ -11,14 +11,18 @@ class TicketOffice
   end
 
   def make_reservation(train_id:, seats:)
-    trains = train_data_service.train(train_id)
+    seat_list = train_data_service.train(train_id)
 
-    free_seats = trains.select { |_, seat| free_seat?(seat) }
+    free_seats = seat_list.select { |_, seat| free_seat?(seat) }
 
-    reserved_seats = free_seats.keys.first(seats)
-    train_data_service.reserve(train_id, reserved_seats, booking_reference_service.reservation_number)
+    seats_to_reserve = free_seats.keys.first(seats)
 
-    Reservation.new(train_id, reserved_seats)
+    reserved_seats = seat_list.count - seats_to_reserve.count
+    filled = (reserved_seats / seat_list.count.to_f) * 100
+    raise OverbookedException if filled >= 70
+
+    train_data_service.reserve(train_id, seats_to_reserve, booking_reference_service.reservation_number)
+    Reservation.new(train_id, seats_to_reserve)
   end
 
   private
@@ -28,4 +32,5 @@ class TicketOffice
   end
 end
 
+class OverbookedException < StandardError; end
 

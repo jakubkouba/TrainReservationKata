@@ -4,6 +4,10 @@ def free_seat(coach: 'A', seat_number: '1')
   { 'coach' => coach, 'seat_number' => seat_number, 'booking_reference' => "" }
 end
 
+def reserved_seat(coach: 'A', seat_number: '1', reservation_number: "1234567")
+  { 'coach' => coach, 'seat_number' => seat_number, 'booking_reference' => reservation_number }
+end
+
 describe TicketOffice do
   let(:train_data_service) { double('TrainDataService') }
   let(:booking_reference_service) { double('BookingReferenceNumber') }
@@ -61,5 +65,25 @@ describe TicketOffice do
   it 'send reservation to train data service' do
     expect(train_data_service).to receive(:reserve).with(train_id, %w[1A], reservation_number)
     reservation
+  end
+
+  describe 'do not reserve seats if train is more than 70% full' do
+    let(:train_id) { 'express_2000' }
+    let(:seats) { 1 }
+    let(:seat_list) do
+      {
+        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
+        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
+        '3A' => reserved_seat(coach: 'A', seat_number: '3'),
+        '4A' => reserved_seat(coach: 'A', seat_number: '4'),
+        '5A' => free_seat(coach: 'A', seat_number: '5')
+      }
+    end
+
+    it 'raise an overbooked error' do
+      expect { reservation }.to raise_exception(OverbookedException)
+    end
+
+    it 'does not send reservation to train data service'
   end
 end
