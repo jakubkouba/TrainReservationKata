@@ -11,9 +11,9 @@ class TicketOffice
   end
 
   def make_reservation(train_id:, seats:)
-    trains = train_data_service.trains
+    trains = train_data_service.train(train_id)
 
-    free_seats = trains[train_id]['seats'].select { |_, seat| free_seat?(seat) }
+    free_seats = trains.select { |_, seat| free_seat?(seat) }
 
     reserved_seats = free_seats.keys.first(seats)
     train_data_service.reserve(train_id, reserved_seats, booking_reference_service.reservation_number)
