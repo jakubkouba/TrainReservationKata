@@ -19,7 +19,7 @@ class TicketOffice
 
     seats_to_reserve = free_seats.keys.first(seats)
 
-    raise OverbookedException if in_advance_reserved_seats(seat_list, seats_to_reserve) >= MAX_PCT_CAPACITY_ALLOWANCE
+    raise OverbookedException if reserved_seats_in_pct(seat_list) >= MAX_PCT_CAPACITY_ALLOWANCE
 
     train_data_service.reserve(train_id, seats_to_reserve, booking_reference_service.reservation_number)
     Reservation.new(train_id, seats_to_reserve)
@@ -27,9 +27,9 @@ class TicketOffice
 
   private
 
-  def in_advance_reserved_seats(seat_list, seats_to_reserve)
-    reserved_seats = seat_list.count - seats_to_reserve.count
-    (reserved_seats / seat_list.count.to_f) * 100
+  def reserved_seats_in_pct(seat_list)
+    booked_seats = seat_list.reject { |_, seat| free_seat?(seat) }
+    (booked_seats.count / seat_list.count.to_f) * 100
   end
 
   def free_seat?(seat_property)
