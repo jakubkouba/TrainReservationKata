@@ -80,10 +80,13 @@ describe TicketOffice do
       }
     end
 
-    it 'raise an overbooked error' do
-      expect { reservation }.to raise_exception(OverbookedException)
+    it 'does not send reservation to train data service' do
+      expect(train_data_service).not_to receive(:reserve)
+      reservation
     end
 
-    it 'does not send reservation to train data service'
+    it 'reserve no seats' do
+      expect(reservation).to have_attributes(seats: [], train_id: 'express_2000')
+    end
   end
 end

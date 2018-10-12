@@ -15,13 +15,14 @@ class TicketOffice
   def make_reservation(train_id:, seats:)
     seat_list = train_data_service.train(train_id)
 
-    free_seats = seat_list.select { |_, seat| free_seat?(seat) }
+    if reserved_seats_in_pct(seat_list) < MAX_PCT_CAPACITY_ALLOWANCE
+      free_seats = seat_list.select { |_, seat| free_seat?(seat) }
+      seats_to_reserve = free_seats.keys.first(seats)
+      train_data_service.reserve(train_id, seats_to_reserve, booking_reference_service.reservation_number)
+    else
+      seats_to_reserve = []
+    end
 
-    seats_to_reserve = free_seats.keys.first(seats)
-
-    raise OverbookedException if reserved_seats_in_pct(seat_list) >= MAX_PCT_CAPACITY_ALLOWANCE
-
-    train_data_service.reserve(train_id, seats_to_reserve, booking_reference_service.reservation_number)
     Reservation.new(train_id, seats_to_reserve)
   end
 
