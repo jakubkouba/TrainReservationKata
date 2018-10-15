@@ -89,4 +89,28 @@ describe TicketOffice do
       expect(reservation).to have_attributes(seats: [], train_id: 'express_2000')
     end
   end
+
+  describe 'do not reserve seats if train is exactly 70% full' do
+    let(:train_id) { 'express_2000' }
+    let(:seats) { 1 }
+    let(:seat_list) do
+      {
+        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
+        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
+        '3A' => reserved_seat(coach: 'A', seat_number: '3'),
+        '4A' => reserved_seat(coach: 'A', seat_number: '4'),
+        '5A' => reserved_seat(coach: 'A', seat_number: '5'),
+        '6A' => reserved_seat(coach: 'A', seat_number: '6'),
+        '7A' => reserved_seat(coach: 'A', seat_number: '7'),
+        '8A' => free_seat(coach: 'A', seat_number: '8'),
+        '9A' => free_seat(coach: 'A', seat_number: '9'),
+        '10A' => free_seat(coach: 'A', seat_number: '10')
+      }
+    end
+
+    it 'does not reserves seats' do
+      expect(reservation).to have_attributes(seats: [], train_id: 'express_2000')
+      expect(train_data_service).not_to receive(:reserve)
+    end
+  end
 end
