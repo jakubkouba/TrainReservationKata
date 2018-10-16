@@ -138,4 +138,22 @@ describe TicketOffice do
     end
   end
 
+  describe 'reserve seats in same coach' do
+    let(:seats) { 2 }
+    let(:seat_list) do
+      {
+        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
+        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
+        '3A' => free_seat(coach: 'A', seat_number: '3'),
+        '1B' => free_seat(coach: 'B', seat_number: '1'),
+        '2B' => free_seat(coach: 'B', seat_number: '2'),
+        '3B' => free_seat(coach: 'B', seat_number: '3'),
+        '4B' => free_seat(coach: 'B', seat_number: '4')
+      }
+    end
+
+    fit 'reserves seats 1B and 2B' do
+      expect(reservation).to have_attributes(seats: %w[1B 2B], train_id: train_id)
+    end
+  end
 end
