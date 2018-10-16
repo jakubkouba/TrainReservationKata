@@ -12,7 +12,11 @@ describe TicketOffice do
   let(:train_data_service) { double('TrainDataService') }
   let(:booking_reference_service) { double('BookingReferenceNumber') }
   let(:seat_list) do
-    { '1A' => free_seat(coach: 'A', seat_number: '1') }
+    {
+      '1A' => free_seat(coach: 'A', seat_number: '1'),
+      '2A' => free_seat(coach: 'A', seat_number: '2'),
+      '3A' => free_seat(coach: 'A', seat_number: '2')
+    }
   end
 
   let(:reservation_number) { '123456' }
@@ -20,7 +24,7 @@ describe TicketOffice do
   let(:seats) { 1 }
 
   let(:ticket_office) { TicketOffice.new(train_data_service, booking_reference_service) }
-  subject(:reservation) { ticket_office.make_reservation(train_id: train_id, seats: seats) }
+  subject(:reservation) { ticket_office.make_reservation(train_id: train_id, number_of_seats_to_reserve: seats) }
 
   before do
     allow(train_data_service).to receive(:train).with(train_id).and_return(seat_list)
@@ -52,7 +56,9 @@ describe TicketOffice do
       {
         '1A' => free_seat(coach: 'A', seat_number: '1'),
         '2A' => free_seat(coach: 'A', seat_number: '2'),
-        '3A' => free_seat(coach: 'A', seat_number: '3')
+        '3A' => free_seat(coach: 'A', seat_number: '3'),
+        '4A' => free_seat(coach: 'A', seat_number: '4'),
+        '5A' => free_seat(coach: 'A', seat_number: '5')
       }
     end
 
@@ -113,4 +119,23 @@ describe TicketOffice do
       expect(train_data_service).not_to receive(:reserve)
     end
   end
+
+  describe 'Do not reserve seats if the final capacity would be over 70%' do
+    let(:seats) { 2 }
+    let(:seat_list) do
+      {
+        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
+        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
+        '3A' => free_seat(coach: 'A', seat_number: '3'),
+        '4A' => free_seat(coach: 'A', seat_number: '4'),
+        '5A' => free_seat(coach: 'A', seat_number: '5')
+      }
+    end
+
+    it 'does not reserves seats' do
+      expect(reservation).to have_attributes(seats: [], train_id: 'express_2000')
+      expect(train_data_service).not_to receive(:reserve)
+    end
+  end
+
 end
