@@ -17,16 +17,15 @@ class TicketOffice
 
     if reserved_seats_in_pct(seats, number_of_seats_to_reserve) < MAX_PCT_CAPACITY_ALLOWANCE
       free_seats = seats.select { |_, seat| free_seat?(seat) }
-      if free_seats.map { |_, seat| seat['coach'] }.uniq.count == 1
-        seats_to_reserve = free_seats.keys.first(number_of_seats_to_reserve)
-      else
-        # search other coach
-        free_coach = free_seats.values.last['coach']
+
+      unless seats_in_one_coach(free_seats)
+        free_coach = next_free_coach(free_seats)
         free_seats = seats.select do |_, seat|
           seat['coach'] == free_coach && free_seat?(seat)
         end
-        seats_to_reserve = free_seats.keys.first(number_of_seats_to_reserve)
       end
+
+      seats_to_reserve = free_seats.keys.first(number_of_seats_to_reserve)
       train_data_service.reserve(train_id, seats_to_reserve, booking_reference_service.reservation_number)
     else
       seats_to_reserve = []
@@ -36,6 +35,14 @@ class TicketOffice
   end
 
   private
+
+  def next_free_coach(free_seats)
+    free_seats.values.last['coach']
+  end
+
+  def seats_in_one_coach(free_seats)
+    free_seats.map { |_, seat| seat['coach'] }.uniq.count == 1
+  end
 
   def reserved_seats_in_pct(seat_list, number_of_seats_to_reserve)
     booked_seats = seat_list.reject { |_, seat| free_seat?(seat) }

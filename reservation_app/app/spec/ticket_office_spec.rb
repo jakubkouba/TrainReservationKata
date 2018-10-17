@@ -152,7 +152,7 @@ describe TicketOffice do
       }
     end
 
-    fit 'reserves seats 1B and 2B' do
+    it 'reserves seats 1B and 2B' do
       expect(reservation).to have_attributes(seats: %w[1B 2B], train_id: train_id)
     end
   end
