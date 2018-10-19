@@ -156,4 +156,25 @@ describe TicketOffice do
       expect(reservation).to have_attributes(seats: %w[1B 2B], train_id: train_id)
     end
   end
+
+  context 'train with tree coaches occupied from ~45%' do
+    let(:seats) { 2 }
+    let(:seat_list) do
+      {
+        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
+        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
+        '1B' => reserved_seat(coach: 'B', seat_number: '2'),
+        '2B' => free_seat(coach: 'B', seat_number: '1'),
+        '1C' => free_seat(coach: 'C', seat_number: '1'),
+        '2C' => free_seat(coach: 'C', seat_number: '2'),
+        '3C' => free_seat(coach: 'C', seat_number: '3'),
+        '4C' => free_seat(coach: 'C', seat_number: '4')
+      }
+    end
+    describe 'reserve seats in same coach' do
+      it 'reserves seats 1C and 2C' do
+        expect(reservation).to have_attributes(seats: %w[1C 2C], train_id: train_id)
+      end
+    end
+  end
 end
