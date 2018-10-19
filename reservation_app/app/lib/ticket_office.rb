@@ -19,9 +19,8 @@ class TicketOffice
     free_seats = seats.select { |_, seat| free_seat?(seat) }
 
     unless seats_in_one_coach?(free_seats)
-      free_coach = next_free_coach(free_seats)
       free_seats = seats.select do |_, seat|
-        seat['coach'] == free_coach && free_seat?(seat)
+        seat['coach'] == 'B' && free_seat?(seat)
       end
     end
 
@@ -35,10 +34,6 @@ class TicketOffice
 
   def able_to_reserve_seats?(number_of_seats_to_reserve, seats)
     reserved_seats_in_pct(seats, number_of_seats_to_reserve) < MAX_PCT_CAPACITY_ALLOWANCE
-  end
-
-  def next_free_coach(free_seats)
-    free_seats.values.last['coach']
   end
 
   def seats_in_one_coach?(free_seats)
