@@ -1,22 +1,36 @@
 require 'spec_helper'
 
 def free_seat(coach: 'A', seat_number: '1')
-  { 'coach' => coach, 'seat_number' => seat_number, 'booking_reference' => "" }
+  double(
+    'Seat',
+    coach:             coach,
+    number:            seat_number,
+    label:             "#{seat_number}#{coach}",
+    booking_reference: '',
+    free?:             true
+  )
 end
 
 def reserved_seat(coach: 'A', seat_number: '1', reservation_number: "1234567")
-  { 'coach' => coach, 'seat_number' => seat_number, 'booking_reference' => reservation_number }
+  double(
+    'Seat',
+    coach:             coach,
+    number:            seat_number,
+    label:             "#{seat_number}#{coach}",
+    booking_reference: reservation_number,
+    free?:             false
+  )
 end
 
 describe TicketOffice do
   let(:train_data_service) { double('TrainDataService') }
   let(:booking_reference_service) { double('BookingReferenceNumber') }
   let(:seat_list) do
-    {
-      '1A' => free_seat(coach: 'A', seat_number: '1'),
-      '2A' => free_seat(coach: 'A', seat_number: '2'),
-      '3A' => free_seat(coach: 'A', seat_number: '2')
-    }
+    [
+      free_seat(coach: 'A', seat_number: '1'),
+      free_seat(coach: 'A', seat_number: '2'),
+      free_seat(coach: 'A', seat_number: '2')
+    ]
   end
 
   let(:reservation_number) { '123456' }
@@ -36,11 +50,11 @@ describe TicketOffice do
     let(:train_id) { 'express_2000' }
     let(:seats) { 1 }
     let(:seat_list) do
-      {
-        '1A' => free_seat(coach: 'A', seat_number: '1'),
-        '2A' => free_seat(coach: 'A', seat_number: '2'),
-        '3A' => free_seat(coach: 'A', seat_number: '3')
-      }
+      [
+        free_seat(coach: 'A', seat_number: '1'),
+        free_seat(coach: 'A', seat_number: '2'),
+        free_seat(coach: 'A', seat_number: '3')
+      ]
     end
 
 
@@ -53,13 +67,13 @@ describe TicketOffice do
     let(:train_id) { 'express_2000' }
     let(:seats) { 2 }
     let(:seat_list) do
-      {
-        '1A' => free_seat(coach: 'A', seat_number: '1'),
-        '2A' => free_seat(coach: 'A', seat_number: '2'),
-        '3A' => free_seat(coach: 'A', seat_number: '3'),
-        '4A' => free_seat(coach: 'A', seat_number: '4'),
-        '5A' => free_seat(coach: 'A', seat_number: '5')
-      }
+      [
+        free_seat(coach: 'A', seat_number: '1'),
+        free_seat(coach: 'A', seat_number: '2'),
+        free_seat(coach: 'A', seat_number: '3'),
+        free_seat(coach: 'A', seat_number: '4'),
+        free_seat(coach: 'A', seat_number: '5')
+      ]
     end
 
 
@@ -77,13 +91,13 @@ describe TicketOffice do
     let(:train_id) { 'express_2000' }
     let(:seats) { 1 }
     let(:seat_list) do
-      {
-        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
-        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
-        '3A' => reserved_seat(coach: 'A', seat_number: '3'),
-        '4A' => reserved_seat(coach: 'A', seat_number: '4'),
-        '5A' => free_seat(coach: 'A', seat_number: '5')
-      }
+      [
+        reserved_seat(coach: 'A', seat_number: '1'),
+        reserved_seat(coach: 'A', seat_number: '2'),
+        reserved_seat(coach: 'A', seat_number: '3'),
+        reserved_seat(coach: 'A', seat_number: '4'),
+        free_seat(coach: 'A', seat_number: '5')
+      ]
     end
 
     it 'does not send reservation to train data service' do
@@ -100,18 +114,18 @@ describe TicketOffice do
     let(:train_id) { 'express_2000' }
     let(:seats) { 1 }
     let(:seat_list) do
-      {
-        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
-        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
-        '3A' => reserved_seat(coach: 'A', seat_number: '3'),
-        '4A' => reserved_seat(coach: 'A', seat_number: '4'),
-        '5A' => reserved_seat(coach: 'A', seat_number: '5'),
-        '6A' => reserved_seat(coach: 'A', seat_number: '6'),
-        '7A' => reserved_seat(coach: 'A', seat_number: '7'),
-        '8A' => free_seat(coach: 'A', seat_number: '8'),
-        '9A' => free_seat(coach: 'A', seat_number: '9'),
-        '10A' => free_seat(coach: 'A', seat_number: '10')
-      }
+      [
+        reserved_seat(coach: 'A', seat_number: '1'),
+        reserved_seat(coach: 'A', seat_number: '2'),
+        reserved_seat(coach: 'A', seat_number: '3'),
+        reserved_seat(coach: 'A', seat_number: '4'),
+        reserved_seat(coach: 'A', seat_number: '5'),
+        reserved_seat(coach: 'A', seat_number: '6'),
+        reserved_seat(coach: 'A', seat_number: '7'),
+        free_seat(coach: 'A', seat_number: '8'),
+        free_seat(coach: 'A', seat_number: '9'),
+        free_seat(coach: 'A', seat_number: '10')
+      ]
     end
 
     it 'does not reserves seats' do
@@ -123,13 +137,13 @@ describe TicketOffice do
   describe 'Do not reserve seats if the final capacity would be over 70%' do
     let(:seats) { 2 }
     let(:seat_list) do
-      {
-        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
-        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
-        '3A' => free_seat(coach: 'A', seat_number: '3'),
-        '4A' => free_seat(coach: 'A', seat_number: '4'),
-        '5A' => free_seat(coach: 'A', seat_number: '5')
-      }
+      [
+        reserved_seat(coach: 'A', seat_number: '1'),
+        reserved_seat(coach: 'A', seat_number: '2'),
+        free_seat(coach: 'A', seat_number: '3'),
+        free_seat(coach: 'A', seat_number: '4'),
+        free_seat(coach: 'A', seat_number: '5')
+      ]
     end
 
     it 'does not reserves seats' do
@@ -141,15 +155,15 @@ describe TicketOffice do
   describe 'reserve seats in same coach' do
     let(:seats) { 2 }
     let(:seat_list) do
-      {
-        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
-        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
-        '3A' => free_seat(coach: 'A', seat_number: '3'),
-        '1B' => free_seat(coach: 'B', seat_number: '1'),
-        '2B' => free_seat(coach: 'B', seat_number: '2'),
-        '3B' => free_seat(coach: 'B', seat_number: '3'),
-        '4B' => free_seat(coach: 'B', seat_number: '4')
-      }
+      [
+        reserved_seat(coach: 'A', seat_number: '1'),
+        reserved_seat(coach: 'A', seat_number: '2'),
+        free_seat(coach: 'A', seat_number: '3'),
+        free_seat(coach: 'B', seat_number: '1'),
+        free_seat(coach: 'B', seat_number: '2'),
+        free_seat(coach: 'B', seat_number: '3'),
+        free_seat(coach: 'B', seat_number: '4')
+      ]
     end
 
     it 'reserves seats 1B and 2B' do
@@ -160,16 +174,16 @@ describe TicketOffice do
   context 'train with tree coaches occupied from ~45%' do
     let(:seats) { 2 }
     let(:seat_list) do
-      {
-        '1A' => reserved_seat(coach: 'A', seat_number: '1'),
-        '2A' => reserved_seat(coach: 'A', seat_number: '2'),
-        '1B' => reserved_seat(coach: 'B', seat_number: '2'),
-        '2B' => free_seat(coach: 'B', seat_number: '1'),
-        '1C' => free_seat(coach: 'C', seat_number: '1'),
-        '2C' => free_seat(coach: 'C', seat_number: '2'),
-        '3C' => free_seat(coach: 'C', seat_number: '3'),
-        '4C' => free_seat(coach: 'C', seat_number: '4')
-      }
+      [
+        reserved_seat(coach: 'A', seat_number: '1'),
+        reserved_seat(coach: 'A', seat_number: '2'),
+        reserved_seat(coach: 'B', seat_number: '2'),
+        free_seat(coach: 'B', seat_number: '1'),
+        free_seat(coach: 'C', seat_number: '1'),
+        free_seat(coach: 'C', seat_number: '2'),
+        free_seat(coach: 'C', seat_number: '3'),
+        free_seat(coach: 'C', seat_number: '4')
+      ]
     end
     describe 'reserve seats in same coach' do
       it 'reserves seats 1C and 2C' do

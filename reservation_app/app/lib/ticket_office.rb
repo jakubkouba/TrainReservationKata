@@ -16,16 +16,17 @@ class TicketOffice
     seats = train_data_service.train(train_id)
     return Reservation.new(train_id, []) unless able_to_reserve_seats?(number_of_seats_to_reserve, seats)
 
-    free_seats = seats.select { |_, seat| free_seat?(seat) }
+    free_seats = seats.select(&:free?)
 
     unless seats_in_one_coach?(free_seats)
       free_coach = next_free_coach(free_seats)
-      free_seats = seats.select do |_, seat|
-        seat['coach'] == free_coach && free_seat?(seat)
+      free_seats = seats.select do |seat|
+        seat.coach == free_coach && seat.free?
       end
     end
 
-    seats_to_reserve = free_seats.keys.first(number_of_seats_to_reserve)
+    # seats_to_reserve = free_seats.keys.first(number_of_seats_to_reserve)
+    seats_to_reserve = free_seats.first(number_of_seats_to_reserve).map(&:label)
 
     train_data_service.reserve(train_id, seats_to_reserve, booking_reference_service.reservation_number)
     Reservation.new(train_id, seats_to_reserve)
@@ -38,20 +39,16 @@ class TicketOffice
   end
 
   def next_free_coach(free_seats)
-    free_seats.values.last['coach']
+    free_seats.last.coach
   end
 
   def seats_in_one_coach?(free_seats)
-    free_seats.map { |_, seat| seat['coach'] }.uniq.count == 1
+    free_seats.map(&:coach).uniq.count == 1
   end
 
-  def reserved_seats_in_pct(seat_list, number_of_seats_to_reserve)
-    booked_seats = seat_list.reject { |_, seat| free_seat?(seat) }
-    ((booked_seats.count + number_of_seats_to_reserve) / seat_list.count.to_f) * 100
-  end
-
-  def free_seat?(seat_property)
-    seat_property['booking_reference'].empty?
+  def reserved_seats_in_pct(seats, number_of_seats_to_reserve)
+    booked_seats = seats.reject(&:free?)
+    ((booked_seats.count + number_of_seats_to_reserve) / seats.count.to_f) * 100
   end
 end
 
