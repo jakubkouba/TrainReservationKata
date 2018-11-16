@@ -25,13 +25,12 @@ end
 describe TicketOffice do
   let(:train_data_service) { double('TrainDataService') }
   let(:booking_reference_service) { double('BookingReferenceNumber') }
-  let(:seat_list) do
-    [
-      free_seat(coach: 'A', seat_number: '1'),
-      free_seat(coach: 'A', seat_number: '2'),
-      free_seat(coach: 'A', seat_number: '2')
-    ]
-  end
+  let(:seat_list) { [] }
+  let(:coaches) { [double('Coach', title: 'A', seats: seat_list)] }
+  let(:train) { double('Train', id: train_id, coaches: coaches) }
+
+  let(:able_to_reserve_seats) { true }
+  let(:free_seats) { [] }
 
   let(:reservation_number) { '123456' }
   let(:train_id) { 'express_2000' }
@@ -41,9 +40,12 @@ describe TicketOffice do
   subject(:reservation) { ticket_office.make_reservation(train_id: train_id, number_of_seats_to_reserve: seats) }
 
   before do
-    allow(train_data_service).to receive(:train).with(train_id).and_return(seat_list)
+    allow(train_data_service).to receive(:train).with(train_id).and_return(train)
     allow(train_data_service).to receive(:reserve)
     allow(booking_reference_service).to receive(:reservation_number).and_return(reservation_number)
+
+    allow(train).to receive(:able_to_reserve_seats?).and_return(able_to_reserve_seats)
+    allow(train).to receive(:free_seats).and_return(seat_list)
   end
 
   describe 'Reserve one seat in train' do
@@ -57,6 +59,11 @@ describe TicketOffice do
       ]
     end
 
+    let(:coaches) { [double('Coach', title: 'A', seats: seat_list)] }
+
+    let(:train) { double('Train', id: train_id, coaches: coaches) }
+
+    let(:able_to_reserve_seats) { true }
 
     it 'reserves seat 1A' do
       expect(reservation).to have_attributes(seats: %w[1A], train_id: 'express_2000')
@@ -76,6 +83,7 @@ describe TicketOffice do
       ]
     end
 
+    let(:free_seats) { seat_list }
 
     it 'reserves seats 1A and 2A' do
       expect(reservation).to have_attributes(seats: %w[1A 2A], train_id: 'express_2000')

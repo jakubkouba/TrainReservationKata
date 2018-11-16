@@ -13,14 +13,14 @@ class TicketOffice
   MAX_PCT_CAPACITY_ALLOWANCE = 70
 
   def make_reservation(train_id:, number_of_seats_to_reserve:)
-    seats = train_data_service.train(train_id)
-    return Reservation.new(train_id, []) unless able_to_reserve_seats?(number_of_seats_to_reserve, seats)
+    train = train_data_service.train(train_id)
+    return Reservation.new(train_id, []) unless train.able_to_reserve_seats?(number_of_seats_to_reserve)
 
-    free_seats = seats.select(&:free?)
+    free_seats = train.free_seats
 
     unless seats_in_one_coach?(free_seats)
       free_coach = next_free_coach(free_seats)
-      free_seats = seats.select do |seat|
+      free_seats = train.select do |seat|
         seat.coach == free_coach && seat.free?
       end
     end
